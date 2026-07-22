@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp,CircleQuestionMark } from 'lucide-react';
 
 const faqData = [
   {
@@ -28,13 +28,19 @@ const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 mb-4 overflow-hidden transition-all duration-300">
+    <div className="bg-white rounded-3xl shadow-sm border border-gray-100/80 mb-4 overflow-hidden transition-all duration-300 hover:border-purple-200/50">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-8 py-6 flex justify-between items-center text-left hover:bg-gray-50/50 transition-colors"
+        className="w-full px-8 py-6 flex justify-between items-center text-left hover:bg-gradient-to-tr hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-300 group"
       >
-        <span className="font-bold text-gray-900 text-lg">{question}</span>
-        {isOpen ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
+        <span className="font-bold text-gray-900 text-lg group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-tr group-hover:from-purple-500 group-hover:to-pink-500 transition-all duration-300">
+          {question}
+        </span>
+        {isOpen ? (
+          <ChevronUp size={20} className="text-purple-500" />
+        ) : (
+          <ChevronDown size={20} className="text-gray-400 group-hover:text-purple-500 transition-colors duration-300" />
+        )}
       </button>
       
       {/* Collapsible Content */}
@@ -47,14 +53,22 @@ const FAQItem = ({ question, answer }) => {
 
 const FAQ = () => {
   return (
-    <section id="faq" className="py-24 px-6 bg-slate-50/50">
-      <div className="max-w-3xl mx-auto">
+    <section id="faq" className="py-24 px-4 sm:px-6 bg-slate-50/50 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-tr from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
+      
+      <div className="max-w-3xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 bg-white px-4 py-1 rounded-full text-purple-600 text-xs font-semibold shadow-sm border border-purple-100">
-             <span className="text-purple-500">ⓘ</span> FAQ
+          <div className="inline-flex items-center gap-2 bg-gradient-to-tr from-purple-100 to-pink-100 px-4 py-1 rounded-full text-purple-600 text-xs font-semibold">
+            <span className="text-purple-500"><CircleQuestionMark className="w-4 h-4 text-purple-500"/></span> FAQ
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900">Frequently asked questions</h2>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900">
+            Frequently asked 
+            <br className="hidden sm:block" />
+            <span className="bg-gradient-to-tr from-purple-500 to-pink-500 bg-clip-text text-transparent">questions</span>
+          </h2>
           <p className="text-gray-500 text-lg">Everything you need to know before you get started.</p>
         </div>
 
