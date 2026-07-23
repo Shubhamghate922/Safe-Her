@@ -1,14 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  Home,
-  User,
-  Users,
-  History,
-  MapPin,
-  Settings,
-  LogOut,
-  ShieldAlert,
+import {Home,User,Users,History,MapPin,Settings,LogOut,ShieldAlert,
 } from "lucide-react";
 
 const Sidebar = () => {

@@ -153,6 +153,7 @@ const LiveLocation = () => {
 
                 {/* Map Legend */}
                 <div className="p-3 border-t border-gray-100 bg-gray-50 hover:bg-purple-50 transition-colors duration-300">
+
                 </div>
               </div>
             </div>
