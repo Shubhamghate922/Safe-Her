@@ -5,9 +5,9 @@ const AppLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
-      <main className="flex-1 p-8 ml-64">{
-        children
-      }</main>
+      <main className="flex-1 p-8 ml-64 min-h-screen">
+        {children}
+      </main>
     </div>
   );
 };

@@ -1,10 +1,59 @@
 import React, { useState } from 'react';
-import { Shield, User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, MapPin, Star, CheckCircle, ShieldCheck, Users } from 'lucide-react';
-import { number } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { Shield, User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, MapPin, Star, CheckCircle, ShieldCheck, Users, Loader2 } from 'lucide-react';
+import { authAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await authAPI.register({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
+
+      if (response.success) {
+        toast.success('Account created successfully!');
+        navigate('/dashboard');
+      } else {
+        toast.error(response.message || 'Registration failed');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex">
@@ -19,7 +68,10 @@ const Register = () => {
             </div>
             <span className="text-white text-2xl font-bold">SafeHer</span>
           </div>
-          <button className="mt-6 text-white/70 hover:text-white text-sm flex items-center gap-2 transition-all duration-300 hover:translate-x-[-4px]">
+          <button 
+            onClick={() => navigate('/')}
+            className="mt-6 text-white/70 hover:text-white text-sm flex items-center gap-2 transition-all duration-300 hover:translate-x-[-4px]"
+          >
             <ArrowLeft size={16} />
             Back to home
           </button>
@@ -82,46 +134,99 @@ const Register = () => {
               <h2 className="text-2xl font-bold text-gray-800 hover:text-purple-600 transition-colors duration-300">Create your account</h2>
               <p className="text-sm text-gray-500 mt-1 hover:text-purple-500 transition-colors duration-300">Join thousands of women who feel safer with SafeHer.</p>
             </div>
-            <form className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-1.5 hover:text-purple-600 transition-colors duration-300">Full Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input type="text" placeholder="Enter Your Name" className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" />
+                  <input 
+                    type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter Your Name" 
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" 
+                    required
+                  />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-1.5 hover:text-purple-600 transition-colors duration-300">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input type="email" placeholder="name@example.com" className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" />
+                  <input 
+                    type="email" 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="name@example.com" 
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" 
+                    required
+                  />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-1.5 hover:text-purple-600 transition-colors duration-300">Mobile Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input type="tel" placeholder="+91 XXXX XXX XXX" className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" />
+                  <input 
+                    type="tel" 
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="+91 XXXX XXX XXX" 
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" 
+                    required
+                  />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-1.5 hover:text-purple-600 transition-colors duration-300">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input type="text" placeholder="********" className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" />
-                  
+                  <input 
+                    type="password" 
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="********" 
+                    className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" 
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors duration-300"
+                  >
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
                 </div>
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-1.5 hover:text-purple-600 transition-colors duration-300">Confirm Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input type="text" placeholder="********" className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" />
+                  <input 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="********" 
+                    className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 hover:border-purple-300 transition-all duration-300" 
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors duration-300"
+                  >
+                    {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
                 </div>
               </div>
               <div>
                 <label className="flex items-start gap-3 cursor-pointer hover:text-purple-600 transition-colors duration-300">
-                  <input type="checkbox" className="mt-0.5 w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 hover:scale-110 transition-transform duration-300" />
+                  <input type="checkbox" className="mt-0.5 w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 hover:scale-110 transition-transform duration-300" required />
                   <span className="text-xs text-gray-600">
                     I agree to the{' '}
                     <a href="#" className="text-purple-600 hover:underline font-semibold hover:text-purple-800 transition-colors duration-300">Terms</a>
@@ -130,13 +235,26 @@ const Register = () => {
                   </span>
                 </label>
               </div>
-              <button type="submit" className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
-                Create Account <ArrowRight size={18} />
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-70"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Create Account <ArrowRight size={18} />
+                  </>
+                )}
               </button>
               <div className="text-center mt-4">
                 <p className="text-sm text-gray-600">
                   Already have an account?{' '}
-                  <a href="#" className="text-purple-600 font-semibold hover:underline hover:text-purple-800 transition-colors duration-300">Login</a>
+                  <a href="/login" className="text-purple-600 font-semibold hover:underline hover:text-purple-800 transition-colors duration-300">Login</a>
                 </p>
               </div>
             </form>

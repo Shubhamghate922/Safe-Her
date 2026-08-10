@@ -1,109 +1,75 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-/**
- * MongoDB User Schema & Document Definition
- * Illustrates BSON Data Types: ObjectId, String, Number, Boolean, Array, Subdocument, Date
- */
-const emergencyContactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  relation: { type: String, default: 'Family' },
-  status: { type: String, enum: ['Active', 'Pending'], default: 'Active' },
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Name is required'],
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    lowercase: true,
+    trim: true,
+  },
+  phone: {
+    type: String,
+    required: [true, 'Phone number is required'],
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: [6, 'Password must be at least 6 characters'],
+  },
+  profileImage: {
+    type: String,
+    default: null,
+  },
+  address: {
+    type: String,
+    default: '',
+  },
+  emergencyEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'User name is required'],
-      trim: true,
-      minlength: [2, 'Name must be at least 2 characters long'],
-    },
-    email: {
-      type: String,
-      required: [true, 'User email is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    phone: {
-      type: String,
-      default: '+91 9699 112 233',
-    },
-    role: {
-      type: String,
-      enum: ['Admin', 'Member', 'Protected User', 'Supervisor'],
-      default: 'Protected User',
-    },
-    status: {
-      type: String,
-      enum: ['Active', 'Pending', 'Suspended'],
-      default: 'Active',
-    },
-    memberType: {
-      type: String,
-      default: 'Premium Member',
-    },
-    isVerified: {
-      type: Boolean,
-      default: true,
-    },
-    safetyScore: {
-      type: Number,
-      min: [0, 'Score cannot be less than 0'],
-      max: [100, 'Score cannot exceed 100'],
-      default: 98,
-    },
-    city: {
-      type: String,
-      default: 'Mumbai',
-    },
-    address: {
-      type: String,
-      default: 'Amravati, MH 444606',
-    },
-    bloodGroup: {
-      type: String,
-      default: 'A+ (Positive)',
-    },
-    medicalNotes: {
-      type: String,
-      default: 'No known allergies. Asthma inhaler in bag.',
-    },
-    avatar: {
-      type: String,
-      default: '',
-    },
-    trustedContactsCount: {
-      type: Number,
-      default: 6,
-    },
-    alertsCount: {
-      type: Number,
-      default: 12,
-    },
-    emergencyContacts: [emergencyContactSchema],
-    location: {
-      lat: { type: Number, default: 19.0760 },
-      lng: { type: Number, default: 72.8777 },
-      address: { type: String, default: 'Andheri West, Mumbai' },
-      updatedAt: { type: Date, default: Date.now },
-    },
-  },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
-);
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
 
-userSchema.virtual('initials').get(function () {
-  if (!this.name) return 'U';
-  return this.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+// Compare password method
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Remove password from JSON response
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.password;
+    return ret;
+  },
 });
 
 const User = mongoose.model('User', userSchema);
