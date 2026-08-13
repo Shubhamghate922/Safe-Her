@@ -1,20 +1,42 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
+import { authAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email === 'admin@gmail.com' && password === '12345') {
-      onLogin(true);
-      navigate('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    setLoading(true);
+    
+    try {
+      const response = await authAPI.login(formData.email, formData.password);
+      
+      if (response.success) {
+        toast.success('Login successful!');
+        onLogin(true);
+        navigate('/dashboard');
+      } else {
+        toast.error(response.message || 'Login failed');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,8 +73,9 @@ const Login = ({ onLogin }) => {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                   <input 
                     type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm placeholder-gray-400"
                     placeholder="admin@gmail.com"
                     required
@@ -65,20 +88,30 @@ const Login = ({ onLogin }) => {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                   <input 
                     type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
                     className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm placeholder-gray-400"
                     placeholder="12345"
                     required
                   />
                 </div>
               </div>
-              {error && <p className="text-red-500 text-sm text-center bg-red-50 p-2 rounded-lg">{error}</p>}
               <button 
                 type="submit" 
-                className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-full hover:shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-full hover:shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
               >
-                Login <ArrowRight size={18} />
+                {loading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  <>
+                    Login <ArrowRight size={18} />
+                  </>
+                )}
               </button>
             </form>
           </div>
