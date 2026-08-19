@@ -15,6 +15,7 @@ import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import Logout from './pages/Logout';
 import NotFound from './pages/NotFound';
+import SOS from './pages/SOS'; // Import SOS page
 
 // Layout
 import AppLayout from './components/AppLayout';
@@ -34,7 +35,7 @@ const App = () => {
   }
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -74,6 +75,14 @@ const App = () => {
               <AppLayout>
                 <Dashboard />
               </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/sos"
+          element={
+            <PrivateRoute>
+              <SOS />
             </PrivateRoute>
           }
         />

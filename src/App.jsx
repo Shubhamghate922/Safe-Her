@@ -13,6 +13,7 @@ import LiveLocation from './Pages/LiveLocation';
 import SettingsPage from './Pages/Setting';
 import Notifications from './Pages/Notifications';
 import PageNotFound from './Pages/NotFound';
+import SOS from './Pages/SOS';
 import AppLayout from './components/AppLayout';
 import { authAPI } from './services/api';
 
@@ -64,7 +65,7 @@ function App() {
             path="/login" 
             element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />} 
           />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Register onRegister={handleLogin} />} />
           <Route 
             path="/logout" 
             element={<Logout onLogout={setIsLoggedIn} />} 
@@ -77,6 +78,18 @@ function App() {
               isLoggedIn ? (
                 <AppLayout>
                   <Dashboard />
+                </AppLayout>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/sos"
+            element={
+              isLoggedIn ? (
+                <AppLayout>
+                  <SOS />
                 </AppLayout>
               ) : (
                 <Navigate to="/login" replace />

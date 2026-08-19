@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Home, User, Users, History, MapPin, Settings, LogOut, ShieldAlert, Bell
+  Home, User, Users, History, MapPin, Settings, LogOut, ShieldAlert, Bell, AlertCircle
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -9,6 +9,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { path: "/dashboard", icon: Home, label: "Dashboard" },
+    { path: "/sos", icon: AlertCircle, label: "SOS", className: "text-red-600 hover:bg-red-50" },
     { path: "/profile", icon: User, label: "Profile" },
     { path: "/emergency-contacts", icon: Users, label: "Emergency Contacts" },
     { path: "/emergency-history", icon: History, label: "Emergency History" },
@@ -38,11 +39,17 @@ const Sidebar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
-              location.pathname === item.path
-                ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-50"
-            }`}
+            className={`
+              flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-all duration-300
+              ${location.pathname === item.path
+                ? item.path === "/sos"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                : item.path === "/sos"
+                  ? "text-red-600 hover:bg-red-50 border-2 border-red-200"
+                  : "text-gray-600 hover:bg-gray-50"
+              }
+            `}
           >
             <item.icon size={18} />
             {item.label}

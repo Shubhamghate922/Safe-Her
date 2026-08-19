@@ -4,7 +4,7 @@ import { Shield, User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Ma
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
-const Register = () => {
+const Register = ({ onRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,6 +44,7 @@ const Register = () => {
 
       if (response.success) {
         toast.success('Account created successfully!');
+        onRegister?.();
         navigate('/dashboard');
       } else {
         toast.error(response.message || 'Registration failed');

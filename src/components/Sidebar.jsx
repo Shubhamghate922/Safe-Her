@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Home, User, Users, History, MapPin, Settings, LogOut, ShieldAlert, Bell
+  Home, User, Users, History, MapPin, Settings, LogOut, ShieldAlert, Bell, Siren
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -9,6 +9,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { path: "/dashboard", icon: Home, label: "Dashboard" },
+    { path: "/sos", icon: Siren, label: "Emergency SOS" },
     { path: "/profile", icon: User, label: "Profile" },
     { path: "/emergency-contacts", icon: Users, label: "Emergency Contacts" },
     { path: "/emergency-history", icon: History, label: "Emergency History" },
