@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Search, Bell, ShieldAlert, Users, MapPin, AlertTriangle, 
   Plus, Database, Edit2, Trash2, Eye, RefreshCw, Zap, 
-  CheckCircle, Filter, UserCheck, Shield, Clock, Loader2
+  CheckCircle, Filter, UserCheck, Shield, Clock, Loader2, Siren
 } from 'lucide-react';
 import { adminAPI, authAPI, sosAPI, notificationsAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -104,6 +104,13 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-3">
             <button
+              onClick={() => navigate('/sos')}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-full text-sm font-semibold hover:bg-red-700 transition-all"
+            >
+              <Siren size={17} />
+              SOS
+            </button>
+            <button
               onClick={fetchDashboardData}
               className="p-2 bg-white rounded-full border border-gray-200 hover:shadow-md transition-all"
             >
@@ -169,6 +176,7 @@ const Dashboard = () => {
                   key={alert._id} 
                   alert={alert} 
                   onResolve={handleResolveSOS}
+                  isAdmin={user?.role === 'admin'}
                 />
               ))
             )}
@@ -227,7 +235,7 @@ const StatCard = ({ icon: Icon, label, value, color }) => {
 };
 
 // SOS Alert Item Component
-const SOSAlertItem = ({ alert, onResolve }) => {
+const SOSAlertItem = ({ alert, onResolve, isAdmin }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'ACTIVE': return 'bg-red-100 text-red-700';
@@ -256,7 +264,7 @@ const SOSAlertItem = ({ alert, onResolve }) => {
         <span className={`text-xs px-3 py-1 rounded-full font-semibold ${getStatusColor(alert.status)}`}>
           {alert.status}
         </span>
-        {alert.status === 'ACTIVE' && user?.role === 'admin' && (
+        {alert.status === 'ACTIVE' && isAdmin && (
           <button
             onClick={() => onResolve(alert._id)}
             className="text-xs px-3 py-1 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"

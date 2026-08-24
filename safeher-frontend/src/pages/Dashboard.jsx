@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Search, Bell, ShieldAlert, Users, MapPin, AlertTriangle, 
   Plus, Database, Edit2, Trash2, Eye, RefreshCw, Zap, 
-  CheckCircle, Filter, UserCheck, Shield, Clock, Loader2
+  CheckCircle, Filter, UserCheck, Shield, Clock, Loader2,
+  AlertCircle // Added for SOS button
 } from 'lucide-react';
 import { adminAPI, sosAPI, notificationsAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -75,6 +76,11 @@ const Dashboard = () => {
     }
   };
 
+  // Navigate to SOS page
+  const handleSOSPress = () => {
+    navigate('/sos');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -93,6 +99,14 @@ const Dashboard = () => {
             <p className="text-sm text-gray-500">Welcome back, {user?.name || 'User'}!</p>
           </div>
           <div className="flex items-center gap-3">
+            {/* SOS Button - Prominent and always visible */}
+            <button
+              onClick={handleSOSPress}
+              className="px-6 py-2.5 bg-red-600 text-white rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg shadow-red-500/30 hover:bg-red-700 hover:scale-105 transition-all duration-300 animate-pulse"
+            >
+              <AlertCircle size={18} />
+              SOS Emergency
+            </button>
             <button
               onClick={fetchDashboardData}
               className="p-2 bg-white rounded-full border border-gray-200 hover:shadow-md transition-all"
@@ -195,89 +209,13 @@ const Dashboard = () => {
   );
 };
 
-// Stat Card Component
 const StatCard = ({ icon: Icon, label, value, color }) => {
-  const colorClasses = {
-    purple: 'bg-purple-100 text-purple-600',
-    green: 'bg-green-100 text-green-600',
-    red: 'bg-red-100 text-red-600',
-    blue: 'bg-blue-100 text-blue-600',
-  };
-
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all">
-      <div className="flex items-center justify-between mb-2">
-        <div className={`p-3 rounded-full ${colorClasses[color]}`}>
-          <Icon size={24} />
-        </div>
-        <span className="text-2xl font-bold text-gray-800">{value || 0}</span>
-      </div>
-      <p className="text-sm text-gray-600">{label}</p>
-    </div>
-  );
+  const colors = { purple: 'bg-purple-100 text-purple-600', green: 'bg-green-100 text-green-600', red: 'bg-red-100 text-red-600', blue: 'bg-blue-100 text-blue-600' };
+  return <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"><div className="flex items-center justify-between mb-2"><div className={`p-3 rounded-full ${colors[color]}`}><Icon size={24} /></div><span className="text-2xl font-bold text-gray-800">{value}</span></div><p className="text-sm text-gray-600">{label}</p></div>;
 };
 
-// SOS Alert Item Component
-const SOSAlertItem = ({ alert, onResolve, userRole }) => {
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'active': return 'bg-red-100 text-red-700';
-      case 'resolved': return 'bg-green-100 text-green-700';
-      case 'cancelled': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-yellow-100 text-yellow-700';
-    }
-  };
+const SOSAlertItem = ({ alert, onResolve, userRole }) => <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl"><div><p className="text-sm font-semibold text-gray-800">{alert.message || 'SOS Emergency Alert'}</p><p className="text-xs text-gray-500">{alert.createdAt ? new Date(alert.createdAt).toLocaleString() : 'Just now'}</p></div><div className="flex items-center gap-2"><span className="text-xs px-3 py-1 rounded-full font-semibold bg-red-100 text-red-700">{alert.status}</span>{alert.status === 'active' && userRole === 'admin' && <button onClick={() => onResolve(alert._id)} className="text-xs px-3 py-1 bg-green-600 text-white rounded-full">Resolve</button>}</div></div>;
 
-  return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-purple-50 transition-all">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-red-100 rounded-full text-red-600">
-          <AlertTriangle size={16} />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-gray-800">
-            {alert.message || 'SOS Emergency Alert'}
-          </p>
-          <p className="text-xs text-gray-500">
-            {new Date(alert.createdAt).toLocaleString()}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <span className={`text-xs px-3 py-1 rounded-full font-semibold ${getStatusColor(alert.status)}`}>
-          {alert.status}
-        </span>
-        {alert.status === 'active' && userRole === 'admin' && (
-          <button
-            onClick={() => onResolve(alert._id)}
-            className="text-xs px-3 py-1 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors"
-          >
-            Resolve
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Notification Item Component
-const NotificationItem = ({ notification }) => {
-  return (
-    <div className={`flex items-center justify-between p-3 rounded-xl transition-all ${notification.isRead ? 'bg-gray-50' : 'bg-purple-50'}`}>
-      <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-full ${notification.isRead ? 'bg-gray-200' : 'bg-purple-200'}`}>
-          <Bell size={16} className={notification.isRead ? 'text-gray-600' : 'text-purple-600'} />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-gray-800">{notification.title}</p>
-          <p className="text-xs text-gray-500">{notification.message}</p>
-        </div>
-      </div>
-      <span className="text-xs text-gray-500">
-        {new Date(notification.createdAt).toLocaleString()}
-      </span>
-    </div>
-  );
-};
+const NotificationItem = ({ notification }) => <div className={`p-3 rounded-xl ${notification.isRead ? 'bg-gray-50' : 'bg-purple-50'}`}><p className="text-sm font-semibold text-gray-800">{notification.title}</p><p className="text-xs text-gray-500">{notification.message}</p></div>;
 
 export default Dashboard;
